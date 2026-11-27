@@ -54,3 +54,7 @@ Thumbs.db
 dist/
 build/
 *.egg-info/
+
+# CatBoost training output
+catboost_info/
+notebooks/catboost_info/
