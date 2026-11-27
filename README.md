@@ -1,194 +1,130 @@
 # Used Car Price Prediction
 
-An end-to-end machine learning project for estimating used car resale prices from vehicle, usage, and seller attributes. The project is structured like a production ML repository rather than a single notebook, with reusable preprocessing code, model training, explainability, API deployment, Streamlit UI, and Docker support.
+An end-to-end regression project that estimates used-car resale prices from vehicle age, showroom price, mileage, fuel type, seller type, transmission and ownership history.
 
-## Business Problem
+The repository separates preprocessing, feature engineering, model training, evaluation, prediction serving and the Streamlit interface. It is a reproducible portfolio project; model quality depends on the dataset supplied locally and should be judged from a fresh evaluation run.
 
-Used car marketplaces need fast and reliable price estimates for inventory acquisition, seller onboarding, buyer transparency, and pricing operations. A poor price estimate can either reduce conversion by overpricing a vehicle or hurt margin by underpricing it.
+## Problem and target
 
-This project predicts a car's selling price using information such as manufacturing year, showroom price, kilometers driven, fuel type, seller type, transmission, and previous owners.
+Predict the resale price (in INR lakhs) from vehicle attributes. The project expects a Cardekho-style CSV dataset and does not include a raw customer or vehicle dataset in the repository.
 
-## Architecture
+Place the dataset at `data/raw/car_data.csv`. Accepted source column names include the original Cardekho names such as `Selling_Price`, `Present_Price`, `Driven_kms`, `Fuel_Type`, `Selling_type`, `Transmission` and `Owner`.
 
-```text
-Raw Dataset
-    |
-    v
-Data Cleaning
-    |
-    v
-Feature Engineering
-    |
-    v
-Scikit-learn Preprocessing Pipeline
-    |
-    v
-Model Training and Tuning
-    |
-    v
-Evaluation, Explainability, and Artifact Saving
-    |
-    +--> FastAPI /predict endpoint
-    |
-    +--> Streamlit prediction app
-```
-
-## Project Structure
+## Workflow
 
 ```text
-used-car-price-prediction/
-├── data/
-│   ├── raw/
-│   └── processed/
-├── notebooks/
-│   ├── 01_EDA.ipynb
-│   ├── 02_Feature_Engineering.ipynb
-│   ├── 03_Model_Training.ipynb
-│   └── 04_Model_Evaluation.ipynb
-├── src/
-│   ├── data_preprocessing.py
-│   ├── feature_engineering.py
-│   ├── train.py
-│   ├── predict.py
-│   ├── evaluate.py
-│   └── utils.py
-├── models/
-├── api/
-│   └── app.py
-├── streamlit_app.py
-├── requirements.txt
-├── Dockerfile
-├── README.md
-└── .gitignore
+Local CSV dataset
+       |
+       v
+Column normalization + data validation
+       |
+       v
+Duplicate / invalid-row handling
+       |
+       v
+Feature engineering
+       |
+       v
+Train/test split + preprocessing pipeline
+       |
+       v
+Baseline model comparison + optional tuning
+       |
+       v
+Test metrics + feature importance
+       |
+       +----> FastAPI prediction endpoint
+       |
+       +----> Streamlit interface
 ```
 
-## Dataset
+## Technology
 
-The project expects a Cardekho-style used car dataset with the following fields:
+- Python, Pandas and NumPy
+- Scikit-learn pipelines and model selection
+- Linear Regression, Decision Tree, Random Forest and Gradient Boosting baselines
+- Optional XGBoost, CatBoost and LightGBM models
+- SHAP and feature-importance utilities
+- FastAPI, Streamlit and Docker
+- Pytest
 
-| Column | Description |
-| --- | --- |
-| `Year` | Manufacturing year |
-| `Present_Price` | Current showroom price in INR lakhs |
-| `Selling_Price` | Resale price in INR lakhs |
-| `Driven_kms` | Total kilometers driven |
-| `Fuel_Type` | Petrol, Diesel, or CNG |
-| `Selling_type` | Dealer or Individual |
-| `Transmission` | Manual or Automatic |
-| `Owner` | Number of previous owners |
-
-Place the dataset at:
+## Repository layout
 
 ```text
-data/raw/car_data.csv
+api/                 FastAPI prediction service
+data/raw/            User-provided source dataset (not committed)
+data/processed/      Generated cleaned dataset (not committed)
+models/              Trained model artifacts (generated locally)
+notebooks/           EDA, feature engineering, training and evaluation
+src/
+  data_preprocessing.py
+  feature_engineering.py
+  train.py
+  predict.py
+  evaluate.py
+  utils.py
+tests/               Unit tests for feature and preprocessing logic
+streamlit_app.py
+Dockerfile
+requirements.txt
+README.md
 ```
-
-The utility layer also supports the original `car data.csv` filename when it exists in the parent workspace.
-
-## EDA
-
-The EDA notebook covers:
-
-- Missing value analysis
-- Duplicate detection
-- Outlier detection
-- Target distribution
-- Numerical feature distributions
-- Categorical feature analysis
-- Correlation heatmap
-- Pair plots
-- Box plots
-- Business insights after each visualization
-
-## Feature Engineering
-
-Engineered features include:
-
-- `car_age`
-- `km_per_year`
-- `depreciation`
-- `depreciation_rate`
-- `brand`
-- `is_luxury_brand`
-- `vehicle_age_bucket`
-- `price_segment`
-- `log_present_price`
-- `log_driven_km`
-
-Target-derived features are available for EDA, but excluded from model inputs to prevent leakage.
-
-## Modeling
-
-The training pipeline compares:
-
-- Linear Regression
-- Decision Tree
-- Random Forest
-- Gradient Boosting
-- XGBoost
-- CatBoost
-- LightGBM
-
-The workflow uses 5-fold cross-validation and tunes stronger candidates with `GridSearchCV` or `RandomizedSearchCV`.
-
-## Evaluation Metrics
-
-Models are compared using:
-
-- R2
-- MAE
-- RMSE
-- MAPE
-- Median Absolute Error
-- Explained Variance Score
-- Cross-validation RMSE
-
-Evaluation plots include actual vs predicted, residuals, prediction error distribution, learning curve, validation curve, feature importance, and SHAP explanations.
 
 ## Setup
 
-```bash
+Python 3.10+ is recommended.
+
+### Windows PowerShell
+
+```powershell
+git clone https://github.com/san613deep/used-car-price-prediction.git
+cd used-car-price-prediction
 python -m venv .venv
-.venv\Scripts\activate
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-## Train Models
+### macOS / Linux
+
+```bash
+git clone https://github.com/san613deep/used-car-price-prediction.git
+cd used-car-price-prediction
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+## Add the dataset
+
+Create `data/raw/` if it does not exist and place `car_data.csv` inside it. The raw dataset is intentionally not committed; use a dataset you are permitted to download and redistribute.
+
+## Train and evaluate
+
+Full model comparison and tuning:
 
 ```bash
 python src/train.py
 ```
 
-For a faster baseline run:
+Faster baseline run:
 
 ```bash
 python src/train.py --skip-tuning
 ```
 
-Training saves:
+Training writes model artifacts and metrics under `models/`. These generated outputs are ignored by Git. Inspect `models/model_metrics.json` and the model-comparison output from your own run before reporting performance numbers.
 
-```text
-models/best_model.joblib
-models/preprocessor.joblib
-models/model_metrics.json
-models/feature_importance.csv
-```
-
-## FastAPI Deployment
-
-Run the API locally:
+## Run the API
 
 ```bash
 uvicorn api.app:app --reload
 ```
 
-Prediction endpoint:
+Open [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
 
-```http
-POST /predict
-```
-
-Example request:
+Example request to `POST /predict`:
 
 ```json
 {
@@ -202,57 +138,40 @@ Example request:
 }
 ```
 
-Example response:
+The API returns the predicted price in INR lakhs. Model artifacts must exist before the prediction endpoint can serve predictions.
 
-```json
-{
-  "predicted_price": 7.21,
-  "currency_unit": "INR lakhs",
-  "model_status": "success"
-}
-```
-
-## Streamlit App
+## Run the Streamlit app
 
 ```bash
 streamlit run streamlit_app.py
 ```
 
-The app includes sidebar inputs, predicted price, model performance, feature importance, and SHAP explanation panels.
-
-## Docker
-
-Build the image:
+## Run tests
 
 ```bash
-docker build -t used-car-price-prediction .
+python -m pytest tests/ -q
 ```
 
-Run the container:
+The unit tests cover feature engineering, target-derived feature exclusion and basic cleaning behavior. GitHub Actions installs the lightweight test dependencies and runs these tests on pushes and pull requests. The tests do not train the full model or validate model accuracy.
 
-```bash
-docker run -p 8000:8000 used-car-price-prediction
-```
+## Evaluation and leakage controls
 
-## Results
+The project provides regression metrics including R², MAE, RMSE, MAPE, median absolute error and explained variance. Feature engineering can create target-derived columns for offline analysis, but `get_model_feature_columns` excludes target-derived values from model inputs.
 
-Results are generated after running `python src/train.py` and stored in `models/model_metrics.json`. The model comparison table is also displayed in the Streamlit app.
+Use a held-out test set and cross-validation to compare candidate models. Do not copy example metrics into a resume: run training on the dataset you actually use and report the resulting test metrics, dataset size and split strategy.
 
-## Screenshots
+## Current limitations
 
-Add screenshots after running the Streamlit app and notebooks:
+- The raw dataset is not included; users must provide it locally.
+- Model performance has not been asserted here because it depends on the dataset and training run.
+- Training can be compute-intensive when optional boosting libraries and hyperparameter searches are enabled.
+- The API is a portfolio prototype. Add authentication, request throttling, model versioning and monitoring before public production use.
+- The available unit tests validate selected preprocessing behavior, not end-to-end training quality.
 
-- EDA summary
-- Model comparison
-- Feature importance
-- SHAP explanation
-- API documentation page
+## Future improvements
 
-## Future Work
-
-- Add make/model/version normalization from richer marketplace data
-- Add city-level demand and supply features
-- Track experiments with MLflow
-- Add CI checks for formatting, tests, and API health
-- Deploy the API on a cloud container service
-- Add drift monitoring for price distribution changes
+- Add a documented dataset acquisition script and dataset checksum.
+- Add integration tests for model training and prediction using a small synthetic fixture.
+- Compare random splitting with a time-aware or grouped validation strategy where appropriate.
+- Add model artifact metadata and a reproducible experiment report.
+- Add API tests for missing artifacts, invalid categorical values and prediction responses.
